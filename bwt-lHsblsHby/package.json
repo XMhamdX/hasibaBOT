@@ -1,0 +1,21 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^18.0.6",
+    "axios": "^1.6.8",
+    "decimal.js": "^10.4.3",
+    "express": "^4.19.2",
+    "mathjs": "^11.8.2",
+    "node-fetch": "^3.2.6",
+    "node-telegram-bot-api": "^0.61.0"
+  }
+}
