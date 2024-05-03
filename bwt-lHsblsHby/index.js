@@ -11,6 +11,9 @@ app.listen(port, () => {
 const token = '5890804914:AAHCCe9qgmsRw7gaaC47GoTygLZODWLPk3E';
 const bot = new TelegramBot(token, { polling: true });
 
+let previousResult = null;
+let previousExpression = null;
+
 // Function to convert Indian numerals to Arabic numerals
 function convertIndianNumeralsToArabic(number) {
   const arabicNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -35,7 +38,7 @@ app.get('/', (req, res) => {
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'مرحبًا بك! أرسل لي عبارة رياضية لحسابها وحفظها.');
+  bot.sendMessage(chatId, 'مرحبًا بك أرسل لي عبارة رياضية لحسابها وحفظها.');
 });
 
 bot.onText(/^(?=.*[\d٠١٢٣٤٥٦٧٨٩])([\d+.*\-\/%×٠-٩ ]+)$/, async (msg, match) => {
@@ -52,6 +55,30 @@ bot.onText(/^(?=.*[\d٠١٢٣٤٥٦٧٨٩])([\d+.*\-\/%×٠-٩ ]+)$/, async (msg
     const response = await axios.get(`http://api.mathjs.org/v4/?expr=${encodeURIComponent(expression)}`);
     const result = response.data;
     bot.sendMessage(chatId, `النتيجة: ${result}`);
+    previousResult = result;
+    previousExpression = expression; // store the original expression
+  } catch (error) {
+    bot.sendMessage(chatId, 'حدث خطأ في عملية الحساب. يرجى المحاولة مرة أخرى.');
+  }
+});
+
+bot.onText(/^([+*/-])(\d+)$/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const operator = match[1];
+  const operand = parseFloat(match[2]);
+
+  if (previousResult === null || previousExpression === null) {
+    bot.sendMessage(chatId, 'لا يوجد نتيجة سابقة للاستمرار.');
+    return;
+  }
+
+  let newExpression = `${previousExpression} ${operator} ${operand}`;
+  try {
+    const response = await axios.get(`http://api.mathjs.org/v4/?expr=${encodeURIComponent(newExpression)}`);
+    const result = response.data;
+    bot.sendMessage(chatId, `النتيجة: ${result}`);
+    previousResult = result;
+    previousExpression = newExpression; // update the original expression
   } catch (error) {
     bot.sendMessage(chatId, 'حدث خطأ في عملية الحساب. يرجى المحاولة مرة أخرى.');
   }
