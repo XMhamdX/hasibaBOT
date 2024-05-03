@@ -55,7 +55,7 @@ bot.onText(/^(?=.*[\d٠١٢٣٤٥٦٧٨٩])([\d+.*\-\/%×٠-٩ ]+)$/, async (msg
     const response = await axios.get(`http://api.mathjs.org/v4/?expr=${encodeURIComponent(expression)}`);
     const result = response.data;
     bot.sendMessage(chatId, `النتيجة: ${result}`);
-    previousResult = result;
+    previousResult = parseFloat(result); // convert result to number
     previousExpression = expression; // store the original expression
   } catch (error) {
     bot.sendMessage(chatId, 'حدث خطأ في عملية الحساب. يرجى المحاولة مرة أخرى.');
@@ -72,12 +72,12 @@ bot.onText(/^([+*/-])(\d+)$/, async (msg, match) => {
     return;
   }
 
-  let newExpression = `${previousExpression} ${operator} ${operand}`;
+  let newExpression = `${previousResult} ${operator} ${operand}`;
   try {
     const response = await axios.get(`http://api.mathjs.org/v4/?expr=${encodeURIComponent(newExpression)}`);
     const result = response.data;
     bot.sendMessage(chatId, `النتيجة: ${result}`);
-    previousResult = result;
+    previousResult = parseFloat(result); // convert result to number
     previousExpression = newExpression; // update the original expression
   } catch (error) {
     bot.sendMessage(chatId, 'حدث خطأ في عملية الحساب. يرجى المحاولة مرة أخرى.');
